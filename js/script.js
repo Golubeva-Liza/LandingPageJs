@@ -387,48 +387,68 @@ document.addEventListener('DOMContentLoaded', () => {
             //первый аргумент - куда, второй - что
             form.insertAdjacentElement('afterend', statusMessage);
 
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
-
-            //мы можем отправлять данные в разных форматах - зависит от бэкенда
-            //2 форма - formData и json
 
             //formdata - спец объект, который позволяет с формы формировать
             //данные в формате ключ-значение
             
-            //request.setRequestHeader('Content-type', 'multipart/form-data');
-            //когда связка XMLHttpRequest и FormData - заголовок указывать не надо!
-            //из-за этого на сервер не пришли данные
-
             //для JSON нужен заголовок
             // request.setRequestHeader('Content-type', 'application/json');
 
             const formData = new FormData(form);//передаетя форма из арг функции
             //!в input необходимо всегда указывать атрибут name, иначе formdata не сможем работать
 
-            //перевод formdata в json
+            //1) отправим Formdata
+            fetch('server1.php', {
+                method: "POST",
+                body: formData //что именно отправляем
+            })
+            .then(data => data.text())
+            .then(data => {
+                console.log(data);//data - данные, которые вернул сервер (промис)
+                showThanksModal(message.success);
+                statusMessage.remove();
+            })
+            .catch(() => {
+                showThanksModal(message.failure);
+            })
+            .finally(() => {
+                form.reset();//сброс формы после отправки
+            });
+
+            //2) отправляем в формате json
+            // перевод formdata в json
             // const object = {};
             // formData.forEach(function(value, key){
             //     object[key] = value;
             // });
-            // const json = JSON.stringify(object);
-            // request.send(json);
 
-            //нативный PHP не умеет работать с json
 
-            request.send(formData);
-            request.addEventListener('load', () => {
-                if (request.status === 200){
-                    console.log(request.response);
-                    showThanksModal(message.success);
-                    form.reset();//сброс формы после отправки
-                    
-                    statusMessage.remove();//удаляем значок загрузки
-                    
-                } else {
-                    showThanksModal(message.failure);
-                }
-            });
+            // fetch('server.php', {
+            //     method: "POST",
+            //     headers: {
+            //         'Content-type': 'application/json'
+            //     },
+            //     body: JSON.stringify(object) 
+            // })
+            // .then(data => data.text())
+            // .then(data => {
+            //     console.log(data);
+            //     showThanksModal(message.success);
+            //     statusMessage.remove();
+            // })
+            // .catch(() => {
+            //     showThanksModal(message.failure);
+            // })
+            // .finally(() => {
+            //     form.reset();
+            // });
+
+
+            //при отработке блока catch в модальном окне ничего не поменялось
+            //промис, запущенный fetch не перейдет в состояние rejected из-за ответа http 400-500 ошибки
+            //там только статус поменяется 
+            //для fetch важно, что он смог сделать запрос, поэтому он не обратит внимания на ошибки http
+            //вот если мы без инета запрос сделаем, тогда сработает catch
         }); 
     }
 
@@ -464,5 +484,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+
+
+
+
+
+
+    // FETCH API
+    //встроена в браузер, чтобы общаться с сервером
+
+    //в скобках - запрос на url, если нет других параметров - get запрос
+    //возвращается промис
+    // fetch();
+    // fetch('https://jsonplaceholder.typicode.com/todos/1')
+
+    //много свойств, важные - метод и бади
+    //отправляем пост запрос
+    // fetch('https://jsonplaceholder.typicode.com/posts', {
+    //     method: "POST",
+    //     body: JSON.stringify({name: 'Alex'}),//отправляем в формате json
+    //     headers: {
+    //         'Content-type': 'application/json'
+    //     }
+    // })
+    // .then(response => response.json())//респонсе в формате json
+    // //метод response.json() превратит данные из json в объект на js
+    // //но возвращается промис
+    // //response.text()
+    // .then(json => console.log(json)); 
+    // //вывел {name: "Alex", id: 101}, где id - номер записи, на сайте указано, что там было их 100
+    // //значит код правильно отработал и мы добавили новую запись
 
 });
