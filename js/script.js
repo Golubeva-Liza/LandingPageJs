@@ -9,18 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideTabContent(){//скрыла весь контент
         tabsContent.forEach(item =>{
-            //item.style.display = 'none';// НО! лучше делать не через inline style, а добавлять и удалять классы
             item.classList.add('hide');
-            item.classList.remove('show', 'animation');//убираем анимацию, чтобы она потом снова воспроизвелась (хотя и так работает)
+            item.classList.remove('show', 'animation');
         });
-        tabs.forEach(tab =>{//уюираем класс активности у табов справа
+        tabs.forEach(tab =>{
             tab.classList.remove('tabheader__item_active');
         });
     }
 
 
     function showTabContent(i = 0){//см ниже, аргумент по умолчанию. если при вызове есть аргмуент, не учитывается
-        //tabsContent[i].style.display = 'block';
         tabsContent[i].classList.add('show', 'animation');
         tabsContent[i].classList.remove('hide');
         tabs[i].classList.add('tabheader__item_active');
@@ -264,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.price = price;
             this.classes = classes;//массив
             this.parent = document.querySelector(parentSelector);//родитель один
-            this.transfer = 74;//курс валют (в данном случае доллары в рубли). можно и как аргументом в будущем
+            this.transfer = 74;//курс валют (в данном случае доллары в рубли)
             this.changeToRub();//тут же вызываем, значение this.price перезапшется (см функцию)
         }
 
@@ -304,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             this.parent.append(element);
-            console.log(this.parent);
         }
     }
 
@@ -314,38 +311,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //но есть способ проще. можно не создавать переменную и её вызывать. можно сразу создать объект, сделать операцию
     // и он сразу удалится. мы нигде его больше не сможем вызвать
-    new MenuCards(
-        "img/tabs/vegy.jpg", //лучше передавать в кавычках, чем ставить их в интерполяции
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        7,
-        '.menu .container'
-        // 'menu__item',//класс без . перед, тк добавляется в classlist
-        // 'big',//еще какой то класс
-        // 'red'
-    ).writeHtml();
 
-    //мы вызываем 3 одинаковые структуры. хорошо было бы засунуть их в цикл, но мы не можем пока брать данные с серва
+    // new MenuCards(
+    //     "img/tabs/vegy.jpg", //лучше передавать в кавычках, чем ставить их в интерполяции
+    //     "vegy",
+    //     'Меню "Фитнес"',
+    //     'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+    //     7,
+    //     '.menu .container'
+    //     // 'menu__item',//класс без . перед, тк добавляется в classlist
+    //     // 'big',//еще какой то класс
+    //     // 'red'
+    // ).writeHtml();
 
-    new MenuCards(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        12,
-        '.menu .container'
-    ).writeHtml();
 
-    new MenuCards(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        17,
-        '.menu .container'
-    ).writeHtml();
+    //делает get запрос для формирования карточек
+    const getResourse = async (url) => {
+        const res = await fetch(url);
 
+        //fetch не выдаст catch из-за ошибки http-запроса, поэтому вручную исправляем это
+        //свойства у промиса, возвращаемого из fetch - ok и status
+
+        if (!res.ok) {
+            //объект ошибки
+
+            //"выкидываем" новую ошибку в консоли
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
+        
+        //перевод тоже может долго идти
+        return await res.json();//это промис
+    };
+
+    getResourse('http://localhost:3000/menu')//придет массив с объектами карточек
+        .then(data => {
+            //сколько будет карточек на сервере - столько раз их создаст
+            data.forEach(({img, altimg, title, descr, price}) => {
+                //разбили объект в свойства
+                // new MenuCards(obj.img, obj.altimg, obj.title ).writeHtml();
+                //не оч хорошо, когда мы перебираем свойства. используем деструктуризацию объетка
+                //вытаскиваем отдельные свойства в отдельную переменную
+
+                new MenuCards(img, altimg, title, descr, price, '.menu .container').writeHtml();
+            });
+        });
+
+    //есть другой способ добавления карточек без использования классов
+    //подойдет, если не нужна шаблонизация, нужно создать что-то пару раз
+
+    // getResourse('http://localhost:3000/menu')//придет массив с объектами карточек
+    //     .then(data => createCard(data));
+
+    // function createCard(data) {
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         const element = document.createElement('div');
+    //         element.classList.add('menu__item');
+
+    //         element.innerHTML = `
+    //             <img src=${img} alt=${altimg}>
+    //             <h3 class="menu__item-subtitle">${title}</h3>
+    //             <div class="menu__item-descr">${descr}</div>
+    //             <div class="menu__item-divider"></div>
+    //             <div class="menu__item-price">
+    //                 <div class="menu__item-cost">Цена:</div>
+    //                 <div class="menu__item-total"><span>${price}</span> руб/день</div>
+    //             </div> 
+    //         `;
+    //         document.querySelector('.menu .container').append(element);
+    //     });
+    // }
+
+    
 
 
 
@@ -368,10 +404,37 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
 
-    function postData(form) {
+    //функция которая создается в потоке кода
+    //лучше выносить общение с сервером в отдельную функцию, тк разные формы, например,
+    //могут отправляться на разные сервера
+
+    const postData = async (url, data) => {
+        //делаем запрос и можем сразу обработать
+
+        //это асинхронный код, поэтому fetch может идти долго, поэтому в переменную ничего не помещается
+        //const res = 4+4; - сначала выполнится действие справа, потом слева
+        //механизм, превращающий асинхронный код в синхронный 
+        //async (перед функцией, типо в функции есть синхронный код), await (используются в паре)
+
+        const res = await fetch(url, {
+            method: "POST",
+            //но потом мы сделаеи, то в postdata передается аргумент, овтечающий за формат данных,
+            //в зависимости от которого будет создаваться нужный заголовок
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data
+        });
+        
+        //перевод тоже может долго идти
+        return await res.json();//это промис
+    };
+
+
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();//убираем перезагрузку сервера при отправке формы
             //console.log(e);//событие SubmitEvent
@@ -396,13 +459,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(form);//передаетя форма из арг функции
             //!в input необходимо всегда указывать атрибут name, иначе formdata не сможем работать
+            
+            // console.log(formData);//какую то хрень выведет
 
-            //1) отправим Formdata
-            fetch('server1.php', {
-                method: "POST",
-                body: formData //что именно отправляем
-            })
-            .then(data => data.text())
+            // перевод formdata в json
+            // const object = {};
+            // formData.forEach(function(value, key){
+            //     object[key] = value;
+            // });
+
+            //ещё один метод перевода formdata в формат json
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
+            //нужно для перевода в json передать объект, entries делает массив, from - в объект
+
+            // const obj2 = {a: 23, B: 50};
+            // console.log(Object.entries(obj2));
+            //метод берет объект, превращает его в массив, внутри которого массивы из двух элементов ключ-значение
+            //[ [ 'a', 23 ], [ 'B', 50 ] ] - матрица
+
+
+
+            //отправим Formdata
+            postData('http://localhost:3000/requests', json)
             .then(data => {
                 console.log(data);//data - данные, которые вернул сервер (промис)
                 showThanksModal(message.success);
@@ -412,16 +490,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 showThanksModal(message.failure);
             })
             .finally(() => {
-                form.reset();//сброс формы после отправки
+                form.reset();
             });
-
-            //2) отправляем в формате json
-            // перевод formdata в json
-            // const object = {};
-            // formData.forEach(function(value, key){
-            //     object[key] = value;
-            // });
-
 
             // fetch('server.php', {
             //     method: "POST",
@@ -430,19 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
             //     },
             //     body: JSON.stringify(object) 
             // })
-            // .then(data => data.text())
-            // .then(data => {
-            //     console.log(data);
-            //     showThanksModal(message.success);
-            //     statusMessage.remove();
-            // })
-            // .catch(() => {
-            //     showThanksModal(message.failure);
-            // })
-            // .finally(() => {
-            //     form.reset();
-            // });
-
 
             //при отработке блока catch в модальном окне ничего не поменялось
             //промис, запущенный fetch не перейдет в состояние rejected из-за ответа http 400-500 ошибки
@@ -453,8 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     //очистить кэш - shift + F5
-    // в нетворк сверху можно выбрать скорость инета (slow 3G). тогда увидим сообщение о загрузке
-
 
     //после отправки формы, всплывает окно с "Спасибо!"
 
@@ -485,7 +540,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-
+    fetch('http://localhost:3000/menu')
+    .then(data => data.json())
+    .then(res => console.log(res));
 
 
 
@@ -507,18 +564,13 @@ document.addEventListener('DOMContentLoaded', () => {
     //         'Content-type': 'application/json'
     //     }
     // })
-    // .then(response => response.json())//респонсе в формате json
+    // .then(response => response.json())
     // //метод response.json() превратит данные из json в объект на js
     // //но возвращается промис
     // //response.text()
     // .then(json => console.log(json)); 
     // //вывел {name: "Alex", id: 101}, где id - номер записи, на сайте указано, что там было их 100
     // //значит код правильно отработал и мы добавили новую запись
-
-
-
-
-
 
 
 
@@ -544,10 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
     //просто прописывает в терминале npm i: все зависимости есть в файле package.json (от него и установится modules)
 
     //json-server - симуляция backenda
-
-    fetch('http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(res => console.log(res));
     
     // ЗАПУСК JSON.SERVER (npx json-server db.json)
 });
