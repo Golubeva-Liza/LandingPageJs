@@ -75,7 +75,7 @@ a{text-decoration:none}
 .offer__advantages h2{font-weight:700;font-size:20px;margin-top:20px}
 .offer__advantages h2:first-child{margin-top:70px}
 .offer__advantages-text{margin-top:20px;font-size:18px;font-weight:300;line-height:21px}
-.offer__slider{width:650px;margin-top:50px;display:flex;flex-direction:column;align-items:flex-end}
+.offer__slider{position:relative;width:650px;margin-top:50px;display:flex;flex-direction:column;align-items:flex-end}
 .offer__slider-counter{display:flex;width:180px;align-items:center;font-size:24px;color:rgba(0,0,0,.5)}
 .offer__slider-wrapper{width:100%;margin-top:15px;box-shadow:0 4px 30px rgba(0,0,0,.25)}
 .offer__slider-prev{margin-right:10px;cursor:pointer}
@@ -105,4 +105,33 @@ a{text-decoration:none}
 }
 @keyframes fade{
     from {opacity: 0.1;} to {opacity: 1;}
+}
+
+.carousel-indicators {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 15;
+    display: flex;
+    justify-content: center;
+    margin-right: 15%;
+    margin-left: 15%;
+    list-style: none;
+}
+
+.dot {
+    box-sizing: content-box;
+    flex: 0 1 auto;
+    width: 30px;
+    height: 6px;
+    margin-right: 3px;
+    margin-left: 3px;
+    cursor: pointer;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    opacity: .5;
+    transition: opacity .6s ease;
 }
