@@ -1,15 +1,16 @@
-function slider (){
-    // SLIDER
-    const currSlide = document.getElementById('current'),
-          slider = document.querySelector('.offer__slider'),
-          totalSlide = document.getElementById('total'),
-          slides = document.querySelectorAll('.offer__slide'),
-          leftArrow = document.querySelector('.offer__slider-prev'),
-          rightArrow = document.querySelector('.offer__slider-next'),
+function slider ({container, slide, nextArrow, prevArrow, totalCounter, currentCounter, wrapper, field}){
+    // используем деструктуризацию в аргументе функции
+
+    const currSlide = document.getElementById(currentCounter),
+          slider = document.querySelector(container),
+          totalSlide = document.getElementById(totalCounter),
+          slides = document.querySelectorAll(slide),
+          leftArrow = document.querySelector(prevArrow),
+          rightArrow = document.querySelector(nextArrow),
 
     //для второго
-          slidesWrapper = document.querySelector('.offer__slider-wrapper'),
-          slidesField = document.querySelector('.offer__slider-inner'),
+          slidesWrapper = document.querySelector(wrapper),
+          slidesField = document.querySelector(field),
           widthSlide = window.getComputedStyle(slidesWrapper).width;
     //мы не можем вытащить значение ширины элемента с помощью style.width, тк это inline style, которого у элемента нет
     //computedstyle - это то, что мы можем увидеть в панели разработчика
@@ -174,4 +175,4 @@ function slider (){
     // });
     //________________________________________________________
 }
-module.exports = slider;
+export default slider;

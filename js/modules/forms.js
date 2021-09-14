@@ -1,11 +1,14 @@
-function forms (){
+import {closeModal, openModal} from './modal';
+import {postData} from '../services/services';
+
+function forms (formSelector, modalTimerId){
         // FORMS
 
     // Взять несколько форм и отправлять форму на server.php
     // Чтобы не создавать 2 одинаковых обработчика, мы их запишем в функцию
     // которую будем вызывать при отправке формы
     
-    const forms = document.querySelectorAll('form');
+    const forms = document.querySelectorAll(formSelector);
 
     //список фраз при отправке формы
     const message = {
@@ -21,27 +24,7 @@ function forms (){
     //функция которая создается в потоке кода
     //лучше выносить общение с сервером в отдельную функцию, тк разные формы, например,
     //могут отправляться на разные сервера
-
-    const postData = async (url, data) => {
-        //делаем запрос и можем сразу обработать
-
-        //это асинхронный код, поэтому fetch может идти долго, поэтому в переменную ничего не помещается
-        //механизм, превращающий асинхронный код в синхронный 
-        //async (перед функцией, типо в функции есть синхронный код), await (используются в паре)
-
-        const res = await fetch(url, {
-            method: "POST",
-            //но потом мы сделаеи, то в postdata передается аргумент, овтечающий за формат данных,
-            //в зависимости от которого будет создаваться нужный заголовок
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: data
-        });
-        
-        //перевод тоже может долго идти
-        return await res.json();
-    };
+    
 
 
     function bindPostData(form) {
@@ -98,7 +81,7 @@ function forms (){
         const prevModalDialog = document.querySelector('.modal__dialog');
         
         prevModalDialog.classList.add('hide');
-        openModal();
+        openModal('.modal', modalTimerId);
 
         const thanksModal = document.createElement('div');
         thanksModal.classList.add('modal__dialog');
@@ -113,7 +96,7 @@ function forms (){
 
         //спустя время модальное окно исчезает, форма возвращается
         setTimeout(() => {
-            closeModal();
+            closeModal('.modal');
             thanksModal.remove();
             prevModalDialog.classList.add('show');
             prevModalDialog.classList.remove('hide');
@@ -125,4 +108,4 @@ function forms (){
     .then(data => data.json())
     .then(res => console.log(res));
 }
-module.exports = forms;
+export default forms;

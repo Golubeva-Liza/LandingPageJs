@@ -1,32 +1,40 @@
-function modal (){
-    // MODAL WINDOW
+function openModal (modalSelector, modalTimerId) {
+    const modal = document.querySelector(modalSelector);
+    modal.classList.add('show');
+    modal.classList.remove('hide');
+    document.body.style.overflow = 'hidden';
 
-    //для того, чтобы обратиться к элементу-триггеру модального окна, можно использовать не класс и тег, а data-атрибуты,
-
-    const modalOpen = document.querySelectorAll('[data-modal]');
-    const modal = document.querySelector('.modal');
-
-    function openModal () {
-        modal.classList.add('show');
-        modal.classList.remove('hide');
-        document.body.style.overflow = 'hidden';
-
+    if (modalTimerId){
         clearInterval(modalTimerId);
-        //если пользователь сам открыл модальное окно до истечения времени
-        //setTimeOut - сбрасывается интервал, второй раз его показывать не надо
     }
+    
+}
+
+function closeModal(modalSelector) {
+    const modal = document.querySelector(modalSelector);
+    modal.classList.remove('show');
+    modal.classList.add('hide');
+    document.body.style.overflow = '';
+}
+//тк эти функции нужны в другом модуле, выносим в отдельные функции
+//модуль может быть вызван для разных переменных. от одной сущности они зависеть не должны
+
+
+
+function modal(triggerButton, modalSelector, modalTimerId){
+    //значения аргументов подставляем в файле script.js 
+
+    const modalOpen = document.querySelectorAll(triggerButton);
+    const modal = document.querySelector(modalSelector);
 
     //для многих кнопок modalOpen
     modalOpen.forEach(btn => {
-        btn.addEventListener('click', openModal);
-    });
+        btn.addEventListener('click', () => openModal(modalSelector, modalTimerId));
 
-    //переделаем в функцию, тк закрытие встречается несколько раз
-    function closeModal() {
-        modal.classList.remove('show');
-        modal.classList.add('hide');
-        document.body.style.overflow = '';
-    }
+        //btn.addEventListener('click', openModal(modalSelector));
+        //так нельзя писать, тк мы в данном случае вызываем функцию, а надо её просто указать,
+        //тк она должна выполниться строго после клика, а так она запустится сразу.
+    });
 
 
     //закрытие по темному полю в пределах модального окна
@@ -35,7 +43,7 @@ function modal (){
         if (e.target === modal || e.target.getAttribute('data-close') == ''){
             //проверяет нажатие по тегу с классом modal, а если нажать модальное окно, то выведет
             // уже другой тег с классом. нажимаю на input - выведет input, а темное поле - только диф с классом modal
-            closeModal();
+            closeModal(modalSelector);
         }
     });
 
@@ -47,7 +55,7 @@ function modal (){
 
         //проверяем, что модальное окно открыто: содержит класс show
         if(e.code === "Escape" && modal.classList.contains('show')){
-            closeModal();
+            closeModal(modalSelector);
         }
     });
 
@@ -55,7 +63,8 @@ function modal (){
 
     // setTimeout позволяет вызвать функцию ОДИН раз через определённый интервал времени.
     // setInterval позволяет вызывать функцию РЕГУЛЯРНО, повторяя вызов через определённый интервал времени.
-    const modalTimerId = setTimeout(openModal, 8000);
+    // const modalTimerId = setTimeout(openModal, 8000);
+    //переносим эту переменную в скрипт.js, тк он используется в нескольких модулях.
 
 
 
@@ -66,7 +75,7 @@ function modal (){
 
     function showModalByScroll() {
         if (window.pageYOffset + doc.clientHeight >= doc.scrollHeight){
-            openModal();
+            openModal(modalSelector, modalTimerId);
             //когда один раз мы долистали до конца и сработало условие, мы
             //показываем модальное окно и убираем обработчик события
             window.removeEventListener('scroll', showModalByScroll);
@@ -75,4 +84,6 @@ function modal (){
 
     window.addEventListener('scroll', showModalByScroll);
 }
-module.exports = modal;
+export default modal;
+export {closeModal};
+export {openModal};

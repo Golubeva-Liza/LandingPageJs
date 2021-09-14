@@ -1,7 +1,7 @@
-function timer (){
+function timer (timerSelector, deadline){
 // TIMER
 
-    const deadline = '2021-08-24';
+    // const deadline = '2021-08-24'; // вынесли в script.js как аргумент
 
     //функция, определяющая разницу между дедлайном и текущем временем
     function getTimeRemaining(endtime){
@@ -63,7 +63,7 @@ function timer (){
         }
     }
 
-    setClock('.timer', deadline);
+    setClock(timerSelector, deadline);
 
 }
-module.exports = timer;
+export default timer;
